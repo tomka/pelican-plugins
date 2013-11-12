@@ -15,7 +15,9 @@ def add_gallery_post(generator):
             articlegallerypath=os.path.join(gallerycontentpath, album)
             
             if(os.path.isdir(articlegallerypath)):       
-                for i in os.listdir(articlegallerypath):
+                filenames = os.listdir(articlegallerypath)
+                filenames.sort()
+                for i in filenames:
                     if os.path.isfile(os.path.join(os.path.join(gallerycontentpath, album), i)):
                         galleryimages.append(i)
         
