@@ -22,6 +22,7 @@ DEFAULT_THUMBNAIL_SIZES = {
 }
 DEFAULT_TEMPLATE = """<a href="{url}" rel="shadowbox" title="{filename}"><img src="{thumbnail}" alt="{filename}"></a>"""
 DEFAULT_GALLERY_THUMB = "thumbnail_square"
+DEFAULT_INCLUDE_REGEXP = r'.*'
 
 class _resizer(object):
     """ Resizes based on a text specification, see readme """
@@ -125,9 +126,17 @@ def resize_thumbnails(pelican):
 
     sizes = pelican.settings.get('THUMBNAIL_SIZES', DEFAULT_THUMBNAIL_SIZES)
     resizers = dict((k, _resizer(k, v)) for k,v in sizes.items())
+    include_pattern = re.compile(
+            pelican.settings.get('THUMBNAIL_INCLUDE_REGEXP',
+                    DEFAULT_INCLUDE_REGEXP))
     logger.debug("Thumbnailer Started")
     for dirpath, _, filenames in os.walk(in_path):
         for filename in filenames:
+            # Ignore paths that don't match the include pattern
+            abspath = os.path.join(dirpath, filename)
+            if not include_pattern.match(abspath):
+                continue
+            # Resize the current image
             for name, resizer in resizers.items():
                 in_filename = path.join(dirpath, filename)
                 logger.debug("Processing thumbnail {0}=>{1}".format(filename, name))
